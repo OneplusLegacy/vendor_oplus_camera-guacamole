@@ -1,0 +1,14 @@
+# Copyright (C) 2026 The LineageOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+# Map the stock OnePlus camera and gallery onto the opluscamera_app domain.
+#
+# The stock 7 Pro seapp_contexts has no com.oneplus.camera entry, so both apps
+# run as priv_app there and inherit that domain's broad vendor access. Giving
+# them a dedicated domain needs an explicit mapping here.
+#
+# levelFrom=all keeps the MLS categories the app inherits from its package, the
+# same way the 13T mapping does for com.oplus.camera.
+
+user=_app seinfo=platform name=com.oneplus.camera domain=opluscamera_app type=opluscamera_app_data_file levelFrom=all
+user=_app seinfo=platform name=com.oneplus.gallery domain=opluscamera_app type=opluscamera_app_data_file levelFrom=all

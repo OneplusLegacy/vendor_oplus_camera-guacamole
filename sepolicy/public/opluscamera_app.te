@@ -1,0 +1,22 @@
+#
+# Copyright (C) 2026 The LineageOS Project
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Domain for the stock OnePlus 7 Pro camera and gallery.
+#
+# The stock 7 Pro build gives com.oneplus.camera the ordinary priv_app domain:
+# there is no com.oneplus.camera entry in its seapp_contexts, only
+# com.oplus.camera gets opluscamera_app. This port still defines a dedicated
+# domain, following the 13T port, for two reasons:
+#
+#   1. The app executes vendor libraries (libadsprpc, libcdsprpc, libAlgoProcess)
+#      and reads /data/vendor/camera. Both are vendor_file_type / vendor_data_file
+#      accesses that coredomain may not perform under the platform neverallows.
+#   2. Keeping the app out of priv_app means a camera-specific allowlist can be
+#      written without granting the same access to every other privileged app.
+#
+
+type opluscamera_app, domain, mlstrustedsubject;
+type opluscamera_app_data_file, file_type, data_file_type, app_data_file_type;
+type oplus_camera_data_file, file_type, data_file_type;

@@ -1,0 +1,27 @@
+#
+# Copyright (C) 2026 The LineageOS Project
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# The stock 7 Pro camera stores its APS (Advanced Photo System) state and
+# tuning cache under /data/vendor. Stock has no camera-specific init script
+# because its SELinux policy already labels that path as vendor_data_file and
+# the app runs with the vendor_data_file exemption.
+#
+# This port gives the app its own domain (opluscamera_app), so the directory it
+# writes to needs to exist with the right owner before the first write. The
+# label itself is set by sepolicy/private/file_contexts.
+#
+
+on post-fs-data
+    # Camera APS working directory. Owned by the camera app's uid/gid via the
+    # package's own data dir elsewhere; this path only holds shared tuning
+    # output, so keep it system-owned and world-readable.
+    mkdir /data/vendor/camera 0770 system camera
+    chmod 0770 /data/vendor/camera
+    chown system camera /data/vendor/camera
+
+on boot
+    # Effect shader cache used by the OCCE pipeline. Stock creates it in
+    # vendor init; mirror it here so the app does not race the first frame.
+    mkdir /data/vendor/camera/occe 0770 system camera

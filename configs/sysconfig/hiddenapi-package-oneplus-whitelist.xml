@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2026 The LineageOS Project
+
+     SPDX-License-Identifier: Apache-2.0
+-->
+<!--
+     Hidden API exemptions for the stock OnePlus 7 Pro camera and gallery.
+
+     Both apps are platform signed, so the default framework policy already
+     exempts them. Listing them explicitly keeps the exemption in place if a
+     build switches PRODUCT_SYSTEM_SERVER_DEBUGGING or flips the
+     hidden-api-whitelist behaviour, and it documents the dependency.
+
+     Source: /system/etc/sysconfig/hiddenapi-package-whitelist.xml in
+     GM1911_11.H.41, which lists com.oneplus.camera next to com.oplus.camera.
+
+     Do not add updatable Play Store packages here.
+-->
+<config>
+    <hidden-api-whitelisted-app package="com.oneplus.camera"/>
+    <hidden-api-whitelisted-app package="com.oneplus.gallery"/>
+</config>

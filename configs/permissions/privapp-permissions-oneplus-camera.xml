@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2026 The LineageOS Project
+
+     SPDX-License-Identifier: Apache-2.0
+-->
+<permissions>
+    <!--
+         Privileged permissions for the stock OnePlus 7 Pro camera
+         (com.oneplus.camera 7.2.47).
+
+         Source: /my_product/etc/permissions/com.oneplus.camera.xml in
+         GM1911_11.H.41 (ColorOS 12.1 / Android 12). The list is kept as-is
+         because the app requests exactly these; dropping an entry makes
+         PackageManager refuse to grant a signature|privileged permission and
+         system_server aborts on a userdebug build.
+
+         All of them exist in this tree: SYSTEM_CAMERA is declared by
+         frameworks/base, PACKAGE_USAGE_STATS / DEVICE_POWER /
+         CONTROL_DISPLAY_BRIGHTNESS / QUERY_ALL_PACKAGES are platform
+         signature permissions granted through the allowlist.
+    -->
+    <privapp-permissions package="com.oneplus.camera">
+        <permission name="android.permission.SYSTEM_CAMERA"/>
+        <permission name="android.permission.PACKAGE_USAGE_STATS"/>
+        <permission name="android.permission.CONTROL_DISPLAY_BRIGHTNESS"/>
+        <permission name="android.permission.DEVICE_POWER"/>
+        <permission name="android.permission.QUERY_ALL_PACKAGES"/>
+    </privapp-permissions>
+
+    <!--
+         com.oneplus.camera.service runs as a persistent helper that force-stops
+         camera-related packages when the camera app takes over. It keeps
+         sharedUserId android.uid.system from stock, so it is installed with the
+         platform certificate.
+    -->
+    <privapp-permissions package="com.oneplus.camera.service">
+        <permission name="android.permission.FORCE_STOP_PACKAGES"/>
+    </privapp-permissions>
+
+    <!--
+         com.oneplus.gallery requests WRITE_MEDIA_STORAGE and
+         WRITE_SECURE_SETTINGS. Both are signature|privileged and are not
+         granted by frameworks/base/data/etc/privapp-permissions-platform.xml,
+         so the app needs its own allowlist entry.
+
+         Source: /system_ext/etc/permissions/privapp-permissions-oneplus-ext.xml
+         in the same stock build.
+    -->
+    <privapp-permissions package="com.oneplus.gallery">
+        <permission name="android.permission.WRITE_MEDIA_STORAGE"/>
+        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+    </privapp-permissions>
+</permissions>

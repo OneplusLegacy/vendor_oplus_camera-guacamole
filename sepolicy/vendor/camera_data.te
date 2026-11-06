@@ -1,0 +1,32 @@
+#
+# Copyright (C) 2026 The LineageOS Project
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Vendor-side policy for the stock OnePlus 7 Pro camera.
+#
+# The camera HAL (cameraserver plus qcamera-daemon) writes tuning output and
+# the OCCE shader cache into /data/vendor/camera, which init.oneplus.camera.rc
+# creates and file_contexts labels oplus_camera_data_file. Both domains need
+# write access to it; the generic vendor_data_file rules do not cover a
+# dedicated label.
+#
+
+# cameraserver hosts the OnePlus camera extension (libcsextimpl) and runs the
+# OCCE shader cache service.
+allow cameraserver oplus_camera_data_file:dir create_dir_perms;
+allow cameraserver oplus_camera_data_file:file create_file_perms;
+allow cameraserver oplus_camera_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
+
+# qcamera-daemon produces the tuning data the app reads back.
+allow qcamera-daemon oplus_camera_data_file:dir rw_dir_perms;
+allow qcamera-daemon oplus_camera_data_file:file create_file_perms;
+allow qcamera-daemon oplus_camera_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
+
+# init creates the directory tree on post-fs-data and boot.
+allow init oplus_camera_data_file:dir create_dir_perms;
+allow init oplus_camera_data_file:file create_file_perms;
+
+# The vendor camera HAL and the camera provider reach it as well.
+allow hal_camera_default oplus_camera_data_file:dir r_dir_perms;
+allow hal_camera_default oplus_camera_data_file:file r_file_perms;
