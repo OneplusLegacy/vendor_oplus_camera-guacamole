@@ -35,11 +35,12 @@ binder_use(opluscamera_app);
 binder_call(opluscamera_app, system_server);
 binder_call(opluscamera_app, surfaceflinger);
 binder_call(opluscamera_app, statsd);
-# APS talks to the system suspend service to keep the DSP alive while
-# processing a burst.
-binder_call(opluscamera_app, system_suspend);
 # The OnePlus camera extension service is published by cameraserver side code;
 # the app only needs to reach cameraserver itself, granted below.
+#
+# system_suspend is deliberately NOT granted. The 13T policy lists it for its
+# APS implementation, but the 7 Pro camera dex has no SystemSuspend reference at
+# all, so on this device the rule would only widen the domain.
 
 # Media and storage, same shape as platform_app.
 allow opluscamera_app mnt_media_rw_file:dir r_dir_perms;

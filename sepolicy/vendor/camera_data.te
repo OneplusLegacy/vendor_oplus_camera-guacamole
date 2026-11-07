@@ -3,30 +3,33 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# Vendor-side policy for the stock OnePlus 7 Pro camera.
+# Vendor-side policy for the shared camera state directory.
 #
-# The camera HAL (cameraserver plus qcamera-daemon) writes tuning output and
-# the OCCE shader cache into /data/vendor/camera, which init.oneplus.camera.rc
-# creates and file_contexts labels oplus_camera_data_file. Both domains need
-# write access to it; the generic vendor_data_file rules do not cover a
-# dedicated label.
+# /data/vendor/camera holds the APS tuning output and the OCCE shader cache. It
+# is created by configs/init/init.oneplus.camera.rc and labelled
+# oplus_camera_data_file by sepolicy/private/file_contexts.
+#
+# Only two domains actually touch it on this device:
+#
+#   init               creates the directory tree on post-fs-data
+#   cameraserver       hosts the camera provider in-process, runs the OnePlus
+#                      extension (libcsextimpl) and drives the OCCE pipeline
+#
+# The 7 Pro has no qcamera-daemon: stock launches
+# android.hardware.camera.provider@2.4-service_64, which registers into
+# cameraserver rather than running as a separate daemon, so there is no
+# qcamera-daemon or mm-qcamerad domain to grant.
+#
+# opluscamera_app (the camera and gallery apps) is granted the same access from
+# sepolicy/private/opluscamera_app.te, because that file sits in the
+# system_ext policy where the app domain is defined.
 #
 
-# cameraserver hosts the OnePlus camera extension (libcsextimpl) and runs the
-# OCCE shader cache service.
-allow cameraserver oplus_camera_data_file:dir create_dir_perms;
-allow cameraserver oplus_camera_data_file:file create_file_perms;
-allow cameraserver oplus_camera_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
-
-# qcamera-daemon produces the tuning data the app reads back.
-allow qcamera-daemon oplus_camera_data_file:dir rw_dir_perms;
-allow qcamera-daemon oplus_camera_data_file:file create_file_perms;
-allow qcamera-daemon oplus_camera_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
-
-# init creates the directory tree on post-fs-data and boot.
+# init creates the directory tree.
 allow init oplus_camera_data_file:dir create_dir_perms;
 allow init oplus_camera_data_file:file create_file_perms;
 
-# The vendor camera HAL and the camera provider reach it as well.
-allow hal_camera_default oplus_camera_data_file:dir r_dir_perms;
-allow hal_camera_default oplus_camera_data_file:file r_file_perms;
+# cameraserver writes the tuning output and the shader cache.
+allow cameraserver oplus_camera_data_file:dir create_dir_perms;
+allow cameraserver oplus_camera_data_file:file create_file_perms;
+allow cameraserver oplus_camera_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
