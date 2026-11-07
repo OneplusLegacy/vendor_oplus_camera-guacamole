@@ -19,31 +19,14 @@ system_ext/lib64/libcsextimpl.so:system_ext/lib64/libcsextimpl.so
 system_ext/lib64/vendor.oplus.hardware.cameraMDM@1.0.so:system_ext/lib64/vendor.oplus.hardware.cameraMDM@1.0.so
 system_ext/lib64/vendor.oplus.hardware.cameraMDM@2.0.so:system_ext/lib64/vendor.oplus.hardware.cameraMDM@2.0.so
 system_ext/lib64/vendor.oplus.hardware.commondcs@1.0.so:system_ext/lib64/vendor.oplus.hardware.commondcs@1.0.so
+# HIDL performance interface. libcsextimpl.so has a DT_NEEDED on it, and this
+# tree only ships the AIDL replacement, whose SONAME differs.
+system/lib64/vendor.oplus.hardware.performance@1.0.so:system_ext/lib64/vendor.oplus.hardware.performance@1.0.so
 
-# Camera JNI libraries. Stock ships these on /my_product/lib64; they are
-# dlopen()ed by name, so the module name has to match the file name.
-my_product/lib64/libAPSClient-jni.so:system_ext/lib64/libAPSClient-jni.so
-my_product/lib64/libAPSClient-cmd-jni.so:system_ext/lib64/libAPSClient-cmd-jni.so
-my_product/lib64/libAncFilter_jni.so:system_ext/lib64/libAncFilter_jni.so
-my_product/lib64/libAncHumBokeh-jni.so:system_ext/lib64/libAncHumBokeh-jni.so
-my_product/lib64/libAncHumanDoubleExposure-jni.so:system_ext/lib64/libAncHumanDoubleExposure-jni.so
-my_product/lib64/libAncHumanRetain-jni_v2.so:system_ext/lib64/libAncHumanRetain-jni_v2.so
-my_product/lib64/libAncHumanSegFigureFusion-jni.so:system_ext/lib64/libAncHumanSegFigureFusion-jni.so
-my_product/lib64/libAncHumanVideo-jni.so:system_ext/lib64/libAncHumanVideo-jni.so
-my_product/lib64/libApsFaceBeautyPreviewProductJni.so:system_ext/lib64/libApsFaceBeautyPreviewProductJni.so
-my_product/lib64/libFileExtender-jni.so:system_ext/lib64/libFileExtender-jni.so
-my_product/lib64/libOplusBlurPreviewJNI.so:system_ext/lib64/libOplusBlurPreviewJNI.so
-my_product/lib64/libSuperTextWrapper.so:system_ext/lib64/libSuperTextWrapper.so
-my_product/lib64/libXDocProcessSDK-jni.so:system_ext/lib64/libXDocProcessSDK-jni.so
-my_product/lib64/libXDocProcessSDK.so:system_ext/lib64/libXDocProcessSDK.so
-my_product/lib64/libYTCommon.so:system_ext/lib64/libYTCommon.so
-my_product/lib64/libextendfile.so:system_ext/lib64/libextendfile.so
-my_product/lib64/libjnisingleblur_api.so:system_ext/lib64/libjnisingleblur_api.so
-my_product/lib64/libjnistblur_api.so:system_ext/lib64/libjnistblur_api.so
-my_product/lib64/liboplusCode.so:system_ext/lib64/liboplusCode.so
-my_product/lib64/libsingle_camera_bokeh_native.so:system_ext/lib64/libsingle_camera_bokeh_native.so
-
-# HEIF buffer exchange helpers.
-system_ext/lib64/libHeifWinBufExchg-jni.so:system_ext/lib64/libHeifWinBufExchg-jni.so
-system_ext/lib64/libHeifEncoderWrapper.so:system_ext/lib64/libHeifEncoderWrapper.so
-system_ext/lib64/libNativeWinBuffExchange.so:system_ext/lib64/libNativeWinBuffExchange.so
+# Nothing else from /my_product/lib64 is shipped.
+#
+# The camera and gallery bundle every library they dlopen: libOnePlusCamera and
+# libCameraNext implement the APS JNI, and the ARCSoft, Morpho and blur pieces
+# are APK assets. A dex scan of both APKs finds no loadLibrary() call for any
+# /my_product name, and libcsextimpl's DT_NEEDED list does not mention them
+# either, so installing them would only add unused files to system_ext.

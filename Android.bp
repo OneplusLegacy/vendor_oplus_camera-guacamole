@@ -5,15 +5,15 @@
 //
 // Stock OnePlus 7 Pro camera and gallery, from GM1911_11.H.41
 // (ColorOS 12.1 / Android 12).
-////
+//
 // MODULE NAMING
 //
-// Several prebuilt modules here would otherwise collide with the 13T port in
-// vendor/oplus/camera and vendor/oneplus/pagani, which ship libraries of the
-// same name built from a newer ColorOS. Soong rejects duplicate module names
-// across the whole tree, so every colliding module carries a guacamole_
-// prefix. The installed file name stays the stock one because the camera
-// dlopen()s these by name; only the Soong module name changed.
+// The 13T port in vendor/oplus/camera ships libraries whose Soong module names
+// match these (libcsextimpl and vendor.oplus.hardware.cameraMDM@1.0 today).
+// Soong rejects duplicate module names across the whole tree, so every prebuilt
+// module here carries a guacamole_ prefix. The installed file name stays the
+// stock one, because cameraserver and the extension load them by name; only the
+// Soong module name changed.
 //
 // Installed at system_ext/priv-app because this tree has no /my_product or
 // /my_bigball partition. The stock layout was:
@@ -93,12 +93,19 @@ android_app_import {
 // privileged package check, so it is the correct library for this device (the
 // 13T build of the same file targets com.oplus.camera and a newer AOSP).
 //
-// It links against vendor.oplus.hardware.cameraMDM@1.0/@2.0 and
-// vendor.oplus.hardware.commondcs@1.0, which stock ships in system_ext/lib64.
+// It links against vendor.oplus.hardware.cameraMDM@1.0/@2.0,
+// vendor.oplus.hardware.commondcs@1.0 and vendor.oplus.hardware.performance@1.0.
+// The first three live in system_ext/lib64 on stock; performance@1.0 is a HIDL
+// library that stock keeps in system/lib64 and this tree only replaced with an
+// AIDL build under a different SONAME, so it is shipped here too.
 // ---------------------------------------------------------------------------
 
 cc_prebuilt_library_shared {
     name: "guacamole_libcsextimpl",
+    // The module name is prefixed to avoid a Soong collision; the installed
+    // file has to keep the stock name because the camera and cameraserver load
+    // it by that name.
+    stem: "libcsextimpl",
     owner: "oneplus",
     strip: {
         none: true,
@@ -141,13 +148,13 @@ cc_prebuilt_library_shared {
         "android.frameworks.sensorservice@1.0",
         "android.hardware.sensors@1.0",
         "guacamole_vendor.oplus.hardware.cameraMDM@1.0",
-        "vendor.oplus.hardware.cameraMDM@2.0",
-        "vendor.oplus.hardware.commondcs@1.0",
+        "guacamole_vendor.oplus.hardware.cameraMDM@2.0",
+        "guacamole_vendor.oplus.hardware.commondcs@1.0",
         "libcameraservice",
         "libnativewindow",
         "libvndksupport",
         "android.hardware.thermal@1.0",
-        "vendor.oplus.hardware.performance@1.0",
+        "guacamole_vendor.oplus.hardware.performance@1.0",
         "libc++",
         "libc",
         "libm",
@@ -160,6 +167,10 @@ cc_prebuilt_library_shared {
 
 cc_prebuilt_library_shared {
     name: "guacamole_vendor.oplus.hardware.cameraMDM@1.0",
+    // The module name is prefixed to avoid a Soong collision; the installed
+    // file has to keep the stock name because the camera and cameraserver load
+    // it by that name.
+    stem: "vendor.oplus.hardware.cameraMDM@1.0",
     owner: "oneplus",
     strip: {
         none: true,
@@ -181,7 +192,11 @@ cc_prebuilt_library_shared {
 }
 
 cc_prebuilt_library_shared {
-    name: "vendor.oplus.hardware.cameraMDM@2.0",
+    name: "guacamole_vendor.oplus.hardware.cameraMDM@2.0",
+    // The module name is prefixed to avoid a Soong collision; the installed
+    // file has to keep the stock name because the camera and cameraserver load
+    // it by that name.
+    stem: "vendor.oplus.hardware.cameraMDM@2.0",
     owner: "oneplus",
     strip: {
         none: true,
@@ -202,13 +217,24 @@ cc_prebuilt_library_shared {
     system_ext_specific: true,
 }
 
+// HIDL performance interface.
+//
+// libcsextimpl.so has a DT_NEEDED entry for
+// vendor.oplus.hardware.performance@1.0.so. This tree only provides the AIDL
+// replacement (vendor.oplus.hardware.performance-V1-ndk), whose SONAME differs,
+// so the HIDL library has to be shipped from the stock blob or the extension
+// cannot link.
 cc_prebuilt_library_shared {
-    name: "vendor.oplus.hardware.commondcs@1.0",
+    name: "guacamole_vendor.oplus.hardware.performance@1.0",
+    // The module name is prefixed to avoid a Soong collision; the installed
+    // file has to keep the stock name because the camera and cameraserver load
+    // it by that name.
+    stem: "vendor.oplus.hardware.performance@1.0",
     owner: "oneplus",
     strip: {
         none: true,
     },
-    srcs: ["proprietary/system_ext/lib64/vendor.oplus.hardware.commondcs@1.0.so"],
+    srcs: ["proprietary/system_ext/lib64/vendor.oplus.hardware.performance@1.0.so"],
     shared_libs: [
         "libhidlbase",
         "liblog",
@@ -224,333 +250,27 @@ cc_prebuilt_library_shared {
     system_ext_specific: true,
 }
 
-// ---------------------------------------------------------------------------
-// Camera JNI libraries (my_product/lib64 in stock)
-//
-// These are dlopen()ed by the camera app, not linked, so they only need to
-// land in system_ext/lib64 with their stock names.
-//
-// libmpbase is deliberately NOT shipped here. The sm8150-common vendor tree
-// already defines a libmpbase module from vendor/lib64 and installs it, and
-// the camera app prefers its own APK-bundled copy at runtime. Shipping a
-// second module with the same name from this repository would be a duplicate
-// Soong module.
-// ---------------------------------------------------------------------------
-
 cc_prebuilt_library_shared {
-    name: "guacamole_libAPSClient-jni",
+    name: "guacamole_vendor.oplus.hardware.commondcs@1.0",
+    // The module name is prefixed to avoid a Soong collision; the installed
+    // file has to keep the stock name because the camera and cameraserver load
+    // it by that name.
+    stem: "vendor.oplus.hardware.commondcs@1.0",
     owner: "oneplus",
     strip: {
         none: true,
     },
-    srcs: ["proprietary/system_ext/lib64/libAPSClient-jni.so"],
+    srcs: ["proprietary/system_ext/lib64/vendor.oplus.hardware.commondcs@1.0.so"],
     shared_libs: [
-        "libvndksupport",
+        "libhidlbase",
         "liblog",
-        "libandroid",
-        "libnativewindow",
-        "libjnigraphics",
+        "libutils",
+        "libcutils",
+        "libc++",
         "libc",
         "libm",
         "libdl",
     ],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libAPSClient-cmd-jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libAPSClient-cmd-jni.so"],
-    shared_libs: [
-        "libvndksupport",
-        "liblog",
-        "libandroid",
-        "libnativewindow",
-        "libjnigraphics",
-        "libc",
-        "libm",
-        "libdl",
-    ],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libAncFilter_jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libAncFilter_jni.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libAncHumBokeh-jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libAncHumBokeh-jni.so"],
-    shared_libs: ["liblog", "libjnigraphics", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libAncHumanDoubleExposure-jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libAncHumanDoubleExposure-jni.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libAncHumanRetain-jni_v2",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libAncHumanRetain-jni_v2.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libAncHumanSegFigureFusion-jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libAncHumanSegFigureFusion-jni.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libAncHumanVideo-jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libAncHumanVideo-jni.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libApsFaceBeautyPreviewProductJni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libApsFaceBeautyPreviewProductJni.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libFileExtender-jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libFileExtender-jni.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libOplusBlurPreviewJNI",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libOplusBlurPreviewJNI.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "libSuperTextWrapper",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libSuperTextWrapper.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libXDocProcessSDK-jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libXDocProcessSDK-jni.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "libXDocProcessSDK",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libXDocProcessSDK.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "libYTCommon",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libYTCommon.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libextendfile",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libextendfile.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libjnisingleblur_api",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libjnisingleblur_api.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libjnistblur_api",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libjnistblur_api.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "liboplusCode",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/liboplusCode.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libsingle_camera_bokeh_native",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libsingle_camera_bokeh_native.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-// HEIF buffer exchange helpers. The camera app and the framework-side
-// OplusCameraManager both dlopen these by name.
-cc_prebuilt_library_shared {
-    name: "guacamole_libHeifWinBufExchg-jni",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libHeifWinBufExchg-jni.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libHeifEncoderWrapper",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libHeifEncoderWrapper.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
-    compile_multilib: "64",
-    prefer: true,
-    system_ext_specific: true,
-}
-
-cc_prebuilt_library_shared {
-    name: "guacamole_libNativeWinBuffExchange",
-    owner: "oneplus",
-    strip: {
-        none: true,
-    },
-    srcs: ["proprietary/system_ext/lib64/libNativeWinBuffExchange.so"],
-    shared_libs: ["liblog", "libc", "libm", "libdl"],
     compile_multilib: "64",
     prefer: true,
     system_ext_specific: true,

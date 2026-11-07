@@ -34,38 +34,22 @@ PRODUCT_PACKAGES += \
     OnePlusCameraService \
     OnePlusGallery
 
-# Libraries the camera app dlopen()s by name, plus the CameraService extension
-# (libcsextimpl) that cameraserver loads through the frameworks/av patch.
+# The CameraService extension (libcsextimpl) that cameraserver loads through
+# the frameworks/av patch, plus the HIDL interfaces it links against.
+#
+# The camera and gallery bundle every library they dlopen (libOnePlusCamera,
+# libCameraNext, the APS JNIs, the ARCSoft and Morpho pieces), and the only
+# external names they reach for are platform or vendor libraries that this tree
+# already ships. Nothing else from /my_product/lib64 is needed.
+#
 # Module names carry a guacamole_ prefix where they collide with the 13T port
 # in vendor/oplus/camera; see the MODULE NAMING block in Android.bp.
 PRODUCT_PACKAGES += \
     guacamole_libcsextimpl \
     guacamole_vendor.oplus.hardware.cameraMDM@1.0 \
-    vendor.oplus.hardware.cameraMDM@2.0 \
-    vendor.oplus.hardware.commondcs@1.0 \
-    guacamole_libAPSClient-jni \
-    guacamole_libAPSClient-cmd-jni \
-    guacamole_libAncFilter_jni \
-    guacamole_libAncHumBokeh-jni \
-    guacamole_libAncHumanDoubleExposure-jni \
-    guacamole_libAncHumanRetain-jni_v2 \
-    guacamole_libAncHumanSegFigureFusion-jni \
-    guacamole_libAncHumanVideo-jni \
-    guacamole_libApsFaceBeautyPreviewProductJni \
-    guacamole_libFileExtender-jni \
-    guacamole_libOplusBlurPreviewJNI \
-    libSuperTextWrapper \
-    guacamole_libXDocProcessSDK-jni \
-    libXDocProcessSDK \
-    libYTCommon \
-    guacamole_libextendfile \
-    guacamole_libjnisingleblur_api \
-    guacamole_libjnistblur_api \
-    liboplusCode \
-    guacamole_libsingle_camera_bokeh_native \
-    guacamole_libHeifWinBufExchg-jni \
-    guacamole_libHeifEncoderWrapper \
-    guacamole_libNativeWinBuffExchange
+    guacamole_vendor.oplus.hardware.cameraMDM@2.0 \
+    guacamole_vendor.oplus.hardware.commondcs@1.0 \
+    guacamole_vendor.oplus.hardware.performance@1.0
 
 # ---------------------------------------------------------------------------
 # Permissions
