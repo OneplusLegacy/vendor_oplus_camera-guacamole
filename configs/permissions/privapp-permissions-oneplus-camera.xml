@@ -39,10 +39,15 @@
     </privapp-permissions>
 
     <!--
-         com.oneplus.gallery requests WRITE_MEDIA_STORAGE and
-         WRITE_SECURE_SETTINGS. Both are signature|privileged and are not
-         granted by frameworks/base/data/etc/privapp-permissions-platform.xml,
-         so the app needs its own allowlist entry.
+         com.oneplus.gallery requests three signature|privileged permissions
+         that frameworks/base/data/etc/privapp-permissions-platform.xml does not
+         grant for this package: WRITE_MEDIA_STORAGE, WRITE_SECURE_SETTINGS and
+         SCHEDULE_EXACT_ALARM. A missing entry abort system_server on a
+         userdebug build under the default ro.control_privapp_permissions=enforce.
+
+         The app also asks for MANAGE_EXTERNAL_STORAGE, WRITE_SETTINGS,
+         SYSTEM_ALERT_WINDOW and others, but those are not signature|privileged,
+         so they are not allowlisted here.
 
          Source: /system_ext/etc/permissions/privapp-permissions-oneplus-ext.xml
          in the same stock build.
@@ -50,5 +55,9 @@
     <privapp-permissions package="com.oneplus.gallery">
         <permission name="android.permission.WRITE_MEDIA_STORAGE"/>
         <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+        <!-- signature|privileged|appop, so a privapp allowlist entry is needed
+             exactly like the two above. The gallery schedules its background
+             media scan through AlarmManager. -->
+        <permission name="android.permission.SCHEDULE_EXACT_ALARM"/>
     </privapp-permissions>
 </permissions>

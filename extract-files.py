@@ -36,5 +36,5 @@ module = ExtractUtilsModule(
 )
 
 if __name__ == '__main__':
-    utils = ExtractUtils.device_with_common(module, 'vendor/oplus/camera-guacamole')
+    utils = ExtractUtils.device(module)
     utils.run()

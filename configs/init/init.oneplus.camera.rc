@@ -3,25 +3,28 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# The stock 7 Pro camera stores its APS (Advanced Photo System) state and
-# tuning cache under /data/vendor. Stock has no camera-specific init script
-# because its SELinux policy already labels that path as vendor_data_file and
-# the app runs with the vendor_data_file exemption.
+# Shared camera state for the stock OnePlus 7 Pro camera.
 #
-# This port gives the app its own domain (opluscamera_app), so the directory it
-# writes to needs to exist with the right owner before the first write. The
-# label itself is set by sepolicy/private/file_contexts.
+# The stock build has no camera-specific init script: its SELinux policy labels
+# /data/vendor/camera as vendor_data_file and the app carries the
+# vendor_data_file exemption, so the directory only has to exist once the HAL
+# creates it.
+#
+# This port runs the app in its own opluscamera_app domain and labels the path
+# oplus_camera_data_file, so the directory has to exist with the right owner
+# and security context before the first write.
+#
+# init's mkdir applies mode, uid and gid but not the SELinux label, so each
+# directory needs an explicit restorecon. Without it the first write from
+# cameraserver or the app is denied and the camera still works only because the
+# path happens to inherit a label from its parent.
+#
+# mkdir already applies the owner and mode; the explicit chmod/chown would only
+# repeat it.
 #
 
 on post-fs-data
-    # Camera APS working directory. Owned by the camera app's uid/gid via the
-    # package's own data dir elsewhere; this path only holds shared tuning
-    # output, so keep it system-owned and world-readable.
     mkdir /data/vendor/camera 0770 system camera
-    chmod 0770 /data/vendor/camera
-    chown system camera /data/vendor/camera
-
-on boot
-    # Effect shader cache used by the OCCE pipeline. Stock creates it in
-    # vendor init; mirror it here so the app does not race the first frame.
+    restorecon /data/vendor/camera
     mkdir /data/vendor/camera/occe 0770 system camera
+    restorecon /data/vendor/camera/occe
