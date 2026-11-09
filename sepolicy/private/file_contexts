@@ -1,5 +1,0 @@
-# Copyright (C) 2026 The LineageOS Project
-# SPDX-License-Identifier: Apache-2.0
-
-# Shared APS tuning and OCCE shader cache, created by init.oneplus.camera.rc.
-/data/vendor/camera(/.*)?    u:object_r:oplus_camera_data_file:s0

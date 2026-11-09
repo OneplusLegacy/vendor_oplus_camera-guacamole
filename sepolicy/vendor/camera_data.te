@@ -3,33 +3,61 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-# Vendor-side policy for the shared camera state directory.
+# Vendor-side policy for opluscamera_app.
 #
-# /data/vendor/camera holds the APS tuning output and the OCCE shader cache. It
-# is created by configs/init/init.oneplus.camera.rc and labelled
-# oplus_camera_data_file by sepolicy/private/file_contexts.
+# The app domain is declared in system_ext policy because the camera and gallery
+# are installed on system_ext, but every type it needs here only exists in
+# vendor policy: /data/vendor/camera is vendor_camera_data_file, the DSP devices
+# and the FastRPC directory come from the Qualcomm tree, and the camera
+# properties are vendor_camera_prop. System_ext policy cannot reference a type
+# that only the vendor policy declares, so these rules live on this side, the
+# same way the 13T port splits its camera domain across the two policies.
 #
-# Only two domains actually touch it on this device:
+# The permission sets below are copied from stock OxygenOS 12.1's
+# system_ext_sepolicy.cil, which grants opluscamera_app exactly:
 #
-#   init               creates the directory tree on post-fs-data
-#   cameraserver       hosts the camera provider in-process, runs the OnePlus
-#                      extension (libcsextimpl) and drives the OCCE pipeline
+#   vendor_camera_data_file  dir  ioctl/read/write/create/getattr/lock/append/
+#                                 map/open/watch/watch_reads/add_name/
+#                                 remove_name/search/rmdir
+#                                file read/write/create/getattr/setattr/lock/
+#                                 append/unlink/rename/open
+#   vendor_qdsp_device       chr_file ioctl/read/write/open
+#   vendor_xdsp_device       chr_file ioctl/read/getattr/lock/map/open/
+#                                 watch/watch_reads
+#   adsprpcd_file            dir  getattr/search
+#   vendor_camera_prop       file read/getattr/map/open
 #
-# The 7 Pro has no qcamera-daemon: stock launches
-# android.hardware.camera.provider@2.4-service_64, which registers into
-# cameraserver rather than running as a separate daemon, so there is no
-# qcamera-daemon or mm-qcamerad domain to grant.
-#
-# opluscamera_app (the camera and gallery apps) is granted the same access from
-# sepolicy/private/opluscamera_app.te, because that file sits in the
-# system_ext policy where the app domain is defined.
+# Staying with these exact sets matters: vendor_camera_data_file is a
+# data_file_type, and the coredomain data_file_type neverallow in domain.te
+# exempts appdomain, so the access is legal precisely because opluscamera_app
+# carries appdomain (see sepolicy/private/opluscamera_app.te).
 #
 
-# init creates the directory tree.
-allow init oplus_camera_data_file:dir create_dir_perms;
-allow init oplus_camera_data_file:file create_file_perms;
+# Shared APS tuning output, OCCE shader cache and watermark output. The camera
+# hardcodes /data/vendor/camera/watermark and writes there itself, so it needs
+# write access to both the directory and the files it creates.
+allow opluscamera_app vendor_camera_data_file:dir {
+    ioctl read write create getattr lock append map open watch watch_reads
+    add_name remove_name search rmdir };
+allow opluscamera_app vendor_camera_data_file:file {
+    read write create getattr setattr lock append unlink rename open };
 
-# cameraserver writes the tuning output and the shader cache.
-allow cameraserver oplus_camera_data_file:dir create_dir_perms;
-allow cameraserver oplus_camera_data_file:file create_file_perms;
-allow cameraserver oplus_camera_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
+# FastRPC. The camera bundles libsnpe_adsp, libhta and the SNPE DSP domains,
+# which link against the vendor libadsprpc/libcdsprpc and open the DSP devices.
+# The libraries themselves carry same_process_hal_file, which app.te already
+# lets every app map, so only the devices and the dsp directory need a grant.
+allow opluscamera_app vendor_qdsp_device:chr_file { ioctl read write open };
+allow opluscamera_app vendor_xdsp_device:chr_file {
+    ioctl read getattr lock map open watch watch_reads };
+allow opluscamera_app adsprpcd_file:dir { getattr search };
+
+# persist.vendor.camera.* (bokeh debug masks, logic count) and the Oplus camera
+# property block. vendor_camera_prop is a vendor_restricted_property_type, which
+# property.te exempts from the coredomain property neverallow, so this is legal
+# even though the domain is coredomain.
+allow opluscamera_app vendor_camera_prop:file { read getattr map open };
+
+# init creates /data/vendor/camera on post-fs-data and cameraserver only reads
+# vendor_camera_prop, so neither needs a rule here. Stock grants init nothing
+# beyond init.te's generic file_type mkdir/chown/restorecon set, and its only
+# cameraserver camera grant is the property read above.

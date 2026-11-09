@@ -5,30 +5,37 @@
 #
 
 # Treble labelling requires every system_ext platform app to carry a coredomain
-# type. Declare it here, in system_ext private policy, not in vendor policy.
+# type. Declare it here, in system_ext private policy, as stock OxygenOS does.
 typeattribute opluscamera_app coredomain;
 
-# The camera and gallery both keep state under /data/vendor (APS tuning output,
-# gallery decode cache). The platform neverallows coredomain access to
-# vendor_data_file, so use the designated exemption attribute.
-typeattribute opluscamera_app data_between_core_and_vendor_violators;
+# app_domain() supplies the rest of the identity that the framework expects of
+# an app process: the appdomain attribute, the userfaultfd anon_inode type and
+# its transition, the appdomain_tmpfs transition, and the ptrace/io_uring
+# neverallows that keep the domain isolated from every other app.
+#
+# The appdomain attribute is the important one. zygote hands app processes to
+# their target domain with a dyntransition, and zygote.te only carries
+# "allow zygote appdomain:process dyntransition". Without appdomain the
+# dyntransition is denied and the app never starts, so a build that passes the
+# neverallow check would still fail at runtime.
+#
+# It is also what makes the vendor data and vendor library access below legal.
+# The /data/vendor and vendor_file_type neverallows in domain.te exempt
+# appdomain, which is why stock OxygenOS keeps opluscamera_app in appdomain and
+# grants it vendor_camera_data_file and vendor_file directly instead of relying
+# on a violator attribute.
+#
+# Stock calls app_domain() on opluscamera_app and net_domain() alongside it.
+app_domain(opluscamera_app)
+net_domain(opluscamera_app)
 
-# The camera dlopen()s vendor libraries (libadsprpc, libcdsprpc,
-# libAlgoProcess) and execs nothing. Reaching vendor_file_type from coredomain
-# needs the system_executes_vendor exemption attribute, the same mechanism
-# profcollectd and similar domains use.
-typeattribute opluscamera_app system_executes_vendor_violators;
-
-# Own data directory.
+# Own data directory. Stock grants exactly the directory and file create sets
+# and nothing for lnk_file/sock_file/fifo_file, so this matches it. The label is
+# opluscamera_app_data_file rather than app_data_file because a
+# mlstrustedsubject may not touch the shared app data types; app.te excludes
+# mlstrustedsubject from its sandbox grants for the same reason.
 allow opluscamera_app opluscamera_app_data_file:dir create_dir_perms;
 allow opluscamera_app opluscamera_app_data_file:file create_file_perms;
-allow opluscamera_app opluscamera_app_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
-
-# Shared APS tuning output and OCCE shader cache under /data/vendor/camera,
-# created by init.oneplus.camera.rc and labelled by file_contexts above.
-allow opluscamera_app oplus_camera_data_file:dir create_dir_perms;
-allow opluscamera_app oplus_camera_data_file:file create_file_perms;
-allow opluscamera_app oplus_camera_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
 
 # Binder infrastructure.
 binder_use(opluscamera_app);
@@ -49,6 +56,10 @@ allow opluscamera_app sdcard_type:file create_file_perms;
 allow opluscamera_app rootfs:dir getattr;
 allow opluscamera_app proc_vmstat:file r_file_perms;
 r_dir_file(opluscamera_app, proc_net_type)
+
+# FastRPC, the shared camera directory and the vendor camera properties are all
+# vendor types, so those rules live in sepolicy/vendor/camera_data.te: system_ext
+# policy cannot reference a type that only the vendor policy declares.
 
 # Properties the camera reads.
 get_prop(opluscamera_app, audio_config_prop)

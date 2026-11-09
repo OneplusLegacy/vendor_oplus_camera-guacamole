@@ -100,14 +100,3 @@ PRODUCT_PRODUCT_PROPERTIES += \
 # the 13T port does and maps both packages onto it.
 # ---------------------------------------------------------------------------
 include vendor/oplus/camera-guacamole/sepolicy/SEPolicy.mk
-
-# ---------------------------------------------------------------------------
-# Init
-#
-# Stock has no camera-specific init script: the app is a normal Activity and
-# the HAL is brought up by vendor init. Keep the hook for the data directory
-# the SELinux policy labels so the directory exists with the right owner before
-# the app first writes to it.
-# ---------------------------------------------------------------------------
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/init/init.oneplus.camera.rc:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/init/init.oneplus.camera.rc
