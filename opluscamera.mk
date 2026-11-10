@@ -38,10 +38,11 @@ PRODUCT_PACKAGES += \
 # The CameraService extension (libcsextimpl) that cameraserver loads through
 # the frameworks/av patch, plus the HIDL interfaces it links against.
 #
-# The camera and gallery bundle every library they dlopen (libOnePlusCamera,
-# libCameraNext, the APS JNIs, the ARCSoft and Morpho pieces), and the only
-# external names they reach for are platform or vendor libraries that this tree
-# already ships. Nothing else from /my_product/lib64 is needed.
+# Core camera libraries are bundled in the stock APKs. Some optional paths also
+# depend on external OEM components (for example Gallery's sticker provider and
+# proprietary HEIF converter). Their presence and ABI need separate validation;
+# do not infer complete native dependency coverage from the bundled libraries.
+# See docs/framework-permission-review-20261110.md.
 #
 # Module names carry a guacamole_ prefix where they collide with the 13T port
 # in vendor/oplus/camera; see the MODULE NAMING block in Android.bp.

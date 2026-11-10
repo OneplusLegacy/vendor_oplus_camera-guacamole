@@ -96,3 +96,64 @@ its vendor index is absent; retain null-input rejection and parameter checking.
 An updated diagnostic Gallery APK includes these selected compatibility classes.
 No production camera APK, permission-definition APK, policy, boot jar or ROM was
 installed on the phone during this follow-up. Source changes require a new ROM.
+
+## Final follow-up (2026-11-11)
+
+The Gallery scan worker unconditionally constructs OplusWhiteListManager after
+media access is granted. Supply that client without creating a nonexistent OEM
+stage-protection backend. Match all actual APK return descriptors: notably,
+getGlobalProcessWhiteList returns ArrayList, whereas the older hardware/oplus
+reference declares List. The query lists are independent empty hint lists;
+add/remove hints do not alter Android's process or application security policy.
+The actual client and ABI/mutation-isolation checks are committed in
+hardware/oplus-guacamole (2c0ccb8).
+
+An 18-client, same-certificate Gallery diagnostic update was installed without
+clearing user data. The selected Java sources match the committed framework
+sources. The user confirmed that editing works after this update; no new Gallery
+crash appeared in the subsequent crash-buffer read, and user-selected image,
+video and media-location permissions remained granted. This is evidence for the
+reported editing failure, not exhaustive testing of every editor feature. The
+permanent boot-framework clients require the next ROM; the diagnostic APK is a
+/data update and should be accounted for when testing that ROM's stock APK.
+
+All 169 current framework Java sources, plus the generated zoom-observer AIDL,
+compiled against the current Android framework with a bounded Java heap. This
+checks source/descriptor consistency without a full ROM build. A DEX call-site
+scan still flags compatibility-library branches for absent OEM APIs; its count
+is not a count of reproducible failures. Android SDK dispatch and capability
+checks must be examined before importing another implementation.
+
+The native CameraService extension also had an unsynchronized load/singleton
+path, a member call without its factory this argument and error statuses falling
+through into the platform parser. extraPatches now supplies the 0003 camera
+patch (c071ab2); the corresponding frameworks/av commit is 5060b6f3f5. It
+serializes initialization, resolves the exported method with the correct object,
+keeps ordinary Camera2 traffic out of the OEM parser and preserves handled
+errors. Both modified ARM64 translation units passed syntax checks using the
+current CFI build flags; six fake-loader/concurrency scenarios and replay of the
+three camera patches passed. Stock binary dispatch is exactly 10001..10011, so
+the first camera patch's original claim about transaction 10015 is not proof of
+zoom support. See extraPatches/docs/camera-extension-review-20261111.md.
+
+Remaining native observations:
+- SNPE's remote_* imports request ADSPRPC/SDSPRPC versions while the current
+  FastRPC providers export those symbols globally. Bionic's check_symbol_version
+  explicitly accepts global definitions when the requested version is not
+  defined by that DSO; the strict host check alone overstates these failures.
+  No symbol version or vendor RPC library was patched on that basis.
+- Optional SNPE *_system variants request libcdsprpc_system.so, while this device
+  publishes libcdsprpc.so. The observed runtime selected the normal CDSP path;
+  its logged firmware/SELinux errors are addressed by the existing RFSA images
+  and narrow adsprpcd_file policy, requiring next-ROM verification.
+- Gallery's libst_sticker_jni.so requests libst_mobile.so, which is absent from
+  this extracted stock set. The 13T file name alone does not establish matching
+  ABI. Advanced stickers are unverified; no unrelated binary is substituted.
+- Proprietary OplusHeifConverter calls are capability-gated. Stock JNI depends
+  on additional OEM decoder libraries and private graphics APIs; do not force
+  this feature on or claim it works from AOSP HEIF support alone.
+
+Camera lens switching, video, portrait, front/rear capture, new signature guard
+permissions and the private camera ABI still need the next ROM runtime test.
+The current flashed boot jar, policy and cameraserver do not contain these
+source changes. Updating Gallery cannot validate those system components.
