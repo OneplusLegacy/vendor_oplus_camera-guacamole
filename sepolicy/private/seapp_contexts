@@ -12,3 +12,8 @@
 
 user=_app seinfo=platform name=com.oneplus.camera domain=opluscamera_app type=opluscamera_app_data_file levelFrom=all
 user=_app seinfo=platform name=com.oneplus.gallery domain=opluscamera_app type=opluscamera_app_data_file levelFrom=all
+
+# Zygote selects the domain using the process name. Camera's pictureProcessing
+# and other private processes must share the main process data access.
+user=_app seinfo=platform name=com.oneplus.camera:* domain=opluscamera_app type=opluscamera_app_data_file levelFrom=all
+user=_app seinfo=platform name=com.oneplus.gallery:* domain=opluscamera_app type=opluscamera_app_data_file levelFrom=all

@@ -1,0 +1,18 @@
+{
+  "libsnpe_dsp_domains_skel.so": {
+    "member": "lib/arm64-v8a/libsnpe_dsp_domains_skel.so",
+    "sha256": "9a35706b0e5bf710c0f45add04c7c0b6bed6f344e5eeb457b0719fb7d2bbb4b8"
+  },
+  "libsnpe_dsp_skel.so": {
+    "member": "lib/arm64-v8a/libsnpe_dsp_skel.so",
+    "sha256": "cc509048df51bc35816c169b3332d8895aebd64d096b7867e28bf337728f852b"
+  },
+  "libsnpe_dsp_v65_domains_v2_skel.so": {
+    "member": "lib/arm64-v8a/libsnpe_dsp_v65_domains_v2_skel.so",
+    "sha256": "f98cce4b9ad23b5d10488bf0cb1e465a4336bba4befd0537058625b859c676de"
+  },
+  "libsnpe_dsp_v66_domains_v2_skel.so": {
+    "member": "lib/arm64-v8a/libsnpe_dsp_v66_domains_v2_skel.so",
+    "sha256": "4f2b7c5983a89be3ce1e031b402970bb653c79f1704850d1df47828e57e54d97"
+  }
+}

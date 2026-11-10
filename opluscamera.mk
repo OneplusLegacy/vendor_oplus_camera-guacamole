@@ -100,3 +100,10 @@ PRODUCT_PRODUCT_PROPERTIES += \
 # the 13T port does and maps both packages onto it.
 # ---------------------------------------------------------------------------
 include vendor/oplus/camera-guacamole/sepolicy/SEPolicy.mk
+
+# Hexagon firmware bundled in the stock camera APK, exposed to FastRPC.
+PRODUCT_PACKAGES += \
+    guacamole_camera_snpe_dsp_domains_skel \
+    guacamole_camera_snpe_dsp_skel \
+    guacamole_camera_snpe_dsp_v65_domains_v2_skel \
+    guacamole_camera_snpe_dsp_v66_domains_v2_skel

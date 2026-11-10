@@ -1,0 +1,4 @@
+# Camera supplies MediaRecorder and extractor file descriptors backed by its
+# dedicated app-data type. Match the platform rules for normal app-data files.
+allow mediaserver opluscamera_app_data_file:file { append getattr ioctl lock map read write };
+allow mediaextractor opluscamera_app_data_file:file { getattr read };

@@ -8,6 +8,11 @@
 # type. Declare it here, in system_ext private policy, as stock OxygenOS does.
 typeattribute opluscamera_app coredomain;
 
+# Legacy FastRPC reads/maps vendor Hexagon images. This compatibility
+# attribute is also used by the reference camera port; the actual grants stay
+# limited to adsprpcd_file in vendor policy, without vendor_file execution.
+typeattribute opluscamera_app system_executes_vendor_violators;
+
 # app_domain() supplies the rest of the identity that the framework expects of
 # an app process: the appdomain attribute, the userfaultfd anon_inode type and
 # its transition, the appdomain_tmpfs transition, and the ptrace/io_uring

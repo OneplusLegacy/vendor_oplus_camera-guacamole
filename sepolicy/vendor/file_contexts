@@ -1,0 +1,2 @@
+# Pinned SNPE Hexagon images generated from the stock camera APK.
+/vendor/lib/rfsa/adsp/libsnpe_dsp(_domains|_v65_domains_v2|_v66_domains_v2)?_skel\.so u:object_r:adsprpcd_file:s0
