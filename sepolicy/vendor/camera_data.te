@@ -67,3 +67,12 @@ allow opluscamera_app vendor_camera_prop:file { read getattr map open };
 # vendor_camera_prop, so neither needs a rule here. Stock grants init nothing
 # beyond init.te's generic file_type mkdir/chown/restorecon set, and its only
 # cameraserver camera grant is the property read above.
+
+# The dedicated app domain must retain the stock tuning-update file access.
+allow opluscamera_app vendor_camera_update_data_file:dir {
+    ioctl read write getattr lock append map open watch watch_reads add_name remove_name search rmdir };
+allow opluscamera_app vendor_camera_update_data_file:file {
+    read write create getattr setattr lock append unlink rename open };
+
+# QTI's platform/privileged app domains already read this exact property type.
+get_prop(opluscamera_app, vendor_persist_camera_prop)
