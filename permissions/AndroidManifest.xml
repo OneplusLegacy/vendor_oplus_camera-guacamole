@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.lineageos.guacamole.portpermissions">
+    <!-- Preserve OEM component guards; grant only to apps with the platform signer. -->
+    <permission android:name="oplus.permission.OPLUS_COMPONENT_SAFE" android:protectionLevel="signature" />
+    <permission android:name="com.oplus.permission.safe.SECURITY" android:protectionLevel="signature" />
+    <permission android:name="com.oppo.permission.safe.SECURITY" android:protectionLevel="signature" />
+    <permission android:name="com.oplus.permission.safe.LOG" android:protectionLevel="signature" />
+    <application android:hasCode="false" android:label="OnePlus port permissions" />
+</manifest>

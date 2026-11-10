@@ -32,7 +32,8 @@ $(call soong_config_set,libgui,num_buffer_slots,96)
 PRODUCT_PACKAGES += \
     OnePlusCamera \
     OnePlusCameraService \
-    OnePlusGallery
+    OnePlusGallery \
+    GuacamoleOplusPermissions
 
 # The CameraService extension (libcsextimpl) that cameraserver loads through
 # the frameworks/av patch, plus the HIDL interfaces it links against.

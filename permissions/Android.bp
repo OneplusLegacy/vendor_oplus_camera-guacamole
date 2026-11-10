@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0
+android_app {
+    name: "GuacamoleOplusPermissions",
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    sdk_version: "current",
+    min_sdk_version: "29",
+    system_ext_specific: true,
+}

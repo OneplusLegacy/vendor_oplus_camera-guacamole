@@ -31,6 +31,7 @@ from extract_utils.main import (
 )
 
 from extract_utils.utils import remove_dir_contents
+from extract_utils.fixups_blob import blob_fixup
 
 
 class PortModule(ExtractUtilsModule):
@@ -50,6 +51,11 @@ class PortModule(ExtractUtilsModule):
         pass
 
 
+blob_fixups = {
+    'system_ext/priv-app/OnePlusCamera/OnePlusCamera.apk':
+        blob_fixup().apktool_patch('patches-camera'),
+}
+
 namespace_imports = [
     'hardware/oplus-guacamole',
     'vendor/oplus/camera-guacamole',
@@ -60,6 +66,7 @@ module = PortModule(
     'oplus',
     device_rel_path='vendor/oplus/camera-guacamole',
     namespace_imports=namespace_imports,
+    blob_fixups=blob_fixups,
 )
 
 if __name__ == '__main__':

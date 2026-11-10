@@ -1,0 +1,19 @@
+From: RobertGarciaa <chae0218@naver.com>
+Subject: [PATCH] manifest: Request system camera access on modern AOSP
+
+The stock permission allowlist lists SYSTEM_CAMERA but the APK does not
+request it. Keep component protection and request the existing framework
+permission explicitly, so the current CameraService can grant system-only
+camera access to this platform-signed privileged app.
+
+---
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -3,6 +3,7 @@
+     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+     <uses-permission android:name="android.permission.CAMERA"/>
++    <uses-permission android:name="android.permission.SYSTEM_CAMERA"/>
+     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+     <uses-permission android:name="android.permission.NFC"/>
