@@ -1,0 +1,5 @@
+# The reference camera port labels these properties as vendor_camera_prop.
+# Keep this scoped to the 7 Pro settings instead of relabeling vendor.camera.*.
+# vendor_init already sets this type and opluscamera_app can read it.
+ro.oplus.system.camera.name       u:object_r:vendor_camera_prop:s0 exact string
+vendor.camera.algo.jpeghwencode    u:object_r:vendor_camera_prop:s0 exact bool
