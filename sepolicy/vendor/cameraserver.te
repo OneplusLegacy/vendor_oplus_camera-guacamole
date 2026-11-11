@@ -1,0 +1,4 @@
+# Stock CameraServiceExtImpl::beforeConnect sends the validated client package
+# to cameraMDM before CamX configures OEM video usecases. Match the stock
+# cameraserver -> cameraMDM service discovery and Binder call relationship.
+hal_client_domain(cameraserver, vendor_hal_cameraMDM)
