@@ -1,0 +1,28 @@
+From: RobertGarciaa <chae0218@naver.com>
+Subject: [PATCH] camera: Skip Qualcomm sensor mode table header in both searches
+
+The first two integers are the row count and row stride. Start matching
+width/height/FPS at offset two, as the existing (offset - 2)/stride + 1
+mode-index calculation already expects. Do not force an arbitrary mode.
+
+---
+--- a/smali/com/oneplus/camera/hardware/camera2/wrappers/OPNormalCamcorderImpl.smali
++++ b/smali/com/oneplus/camera/hardware/camera2/wrappers/OPNormalCamcorderImpl.smali
+@@ -4579,7 +4579,7 @@
+ 
+     add-int/lit8 v13, v13, -0x3
+ 
+-    invoke-direct {v12, v7, v13}, Lkotlin/ranges/IntRange;-><init>(II)V
++    invoke-direct {v12, v8, v13}, Lkotlin/ranges/IntRange;-><init>(II)V
+ 
+     check-cast v12, Lkotlin/ranges/IntProgression;
+ 
+@@ -4705,7 +4705,7 @@
+ 
+     add-int/lit8 v11, v11, -0x3
+ 
+-    const/4 v12, 0x0
++    const/4 v12, 0x2
+ 
+     invoke-direct {v8, v12, v11}, Lkotlin/ranges/IntRange;-><init>(II)V
+ 
